@@ -19,12 +19,15 @@ def create_csv(search_urls, map_info, fname, pscores):
     """Create a CSV file with information that can be imported into ideal-engine"""
 
     # avoid the issue on Windows where there's an extra space every other line
-    if sys.version_info[0] == 2:  # Not named on 2.6
-        access = 'wb'
-        kwargs = {}
-    else:
-        access = 'wt'
-        kwargs = {'newline': ''}
+    # if sys.version_info[0] == 2:  # Not named on 2.6
+    #     access = 'wb'
+    #     kwargs = {}
+    # else:
+
+    # For Python 3.x
+    access = 'w'
+    kwargs = {'newline': ''}
+
     # open file for writing
     csv_file = open(fname, access, **kwargs)
 
@@ -43,7 +46,7 @@ def create_csv(search_urls, map_info, fname, pscores):
                   'Images', 'Description']
         # add the score fields if necessary
         if pscores:
-            for i in xrange(len(header), 0, -1):
+            for i in range(len(header), 0, -1):   ##xrange to range
                 header.insert(i, 5)
             # flag that we're importing with scores
             header[1] = 'score'
@@ -111,7 +114,7 @@ def write_parsed_to_csv(page_url, map_info, writer, pscores):
                fields['img'], fields['description']]
         # add the score fields if necessary
         if pscores:
-            for i in xrange(len(row), 0, -1):
+            for i in range(len(row), 0, -1):   #xrange to range
                 row.insert(i, '5')
             row.append('0')
         # write the row
@@ -416,9 +419,9 @@ def get_distance_duration(map_info, fields):
 
 def average_field(obj1, obj2, field):
     """Take the average given two objects that have field values followed by (same) unit"""
-    val1 = float(prettify_text(obj1[field]).split()[0])
-    val2 = float(prettify_text(obj2[field]).split()[0])
-    unit = ' ' + prettify_text(obj1[field]).split()[1]
+    val1 = float(prettify_text(obj1[field]).split()[0].decode().replace("b'", ""))
+    val2 = float(prettify_text(obj2[field]).split()[0].decode().replace("b'", ""))
+    unit = ' ' + prettify_text(obj1[field]).split()[1].decode().replace("b'", "")
 
     avg = 0.5 * (val1 + val2)
     if field == 'duration':
@@ -517,7 +520,7 @@ def main():
 
     # get the apartments.com search URL(s)
     apartments_url_config = conf.get('all', 'apartmentsURL')
-    urls = apartments_url_config.replace(" ", "").split(",")
+    urls = apartments_url_config.replace("\n", "").replace(" ", "").split(",")
 
     # get the name of the output file
     fname = conf.get('all', 'fname') + '.csv'
